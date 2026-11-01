@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنجازي اليومي</title>
+    <style>
+        :root {
+            --bg-color: #f0f7f4;
+            --primary: #2e7d32;
+            --primary-light: #c8e6c9;
+            --primary-dark: #1b5e20;
+            --accent: #81c784;
+            --text: #2c3e50;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text); padding-bottom: 30px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 25px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { margin-bottom: 8px; font-size: 1.8rem; }
+        p { opacity: 0.9; font-size: 0.95rem; }
+        .install-btn { display: none; background-color: white; color: var(--primary-dark); border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; margin-top: 15px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .day-selector { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 10px 15px; border-radius: 12px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .day-selector button { background-color: var(--primary-light); color: var(--primary-dark); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .day-selector span { font-weight: bold; font-size: 1.1rem; }
+        .progress-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .progress-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px; }
+        .progress-bar-bg { background-color: #e8f5e9; height: 14px; border-radius: 7px; overflow: hidden; }
+        .progress-bar-fill { background-color: var(--primary); height: 100%; width: 0%; transition: width 0.3s ease; }
+        .section-title { color: var(--primary-dark); margin: 20px 0 10px 0; font-size: 1.1rem; border-right: 4px solid var(--primary); padding-right: 8px; font-weight: bold; }
+        .task-group { background: var(--card-bg); border-radius: 12px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-bottom: 15px; }
+        .task-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        .task-item:last-child { border-bottom: none; }
+        label { display: flex; align-items: center; gap: 12px; cursor: pointer; width: 100%; font-size: 0.95rem; }
+        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
+        .select-item { display: flex; flex-direction: column; gap: 6px; padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        .select-item:last-child { border-bottom: none; }
+        .select-item label { font-size: 0.95rem; font-weight: bold; color: var(--primary-dark); }
+        .select-item select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background-color: #fafafa; outline: none; cursor: pointer; }
+        .select-item select:focus { border-color: var(--primary); background-color: #fff; }
+        footer { text-align: center; margin-top: 30px; font-size: 0.85rem; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌿 إنجازي اليومي</h1>
+    <p>متابعة العبادات والعادات لـ 30 يوماً</p>
+    <button id="installApp" class="install-btn">📥 تثبيت التطبيق</button>
+</header>
+
+<div class="container">
+    <div class="day-selector">
+        <button onclick="changeDay(-1)">السابق</button>
+        <span id="currentDayLabel">اليوم 1 من 30</span>
+        <button onclick="changeDay(1)">التالي</button>
+    </div>
+
+    <div class="progress-card">
+        <div class="progress-header">
+            <span>نسبة الإنجاز اليومي:</span>
+            <b id="progressPercent">0%</b>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="progressFill" class="progress-bar-fill"></div>
+        </div>
+    </div>
+
+    <div id="tasksContainer">
+        <!-- 1. الصلوات والسنن -->
+        <div class="section-title">🕌 الصلوات المفروضة والسنن</div>
+        <div class="task-group">
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('SunnahFajr')"> سنة الفجر القبلية</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('Fajr')"> صلاة الفجر</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('SunnahDhuhrBefore')"> سنة الظهر القبلية</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('Dhuhr')"> صلاة الظهر</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('SunnahDhuhrAfter')"> سنة الظهر البعدية</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('Asr')"> صلاة العصر</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('Maghrib')"> صلاة المغرب</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('SunnahMaghrib')"> سنة المغرب البعدية</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('Isha')"> صلاة العشاء</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('SunnahIsha')"> سنة العشاء البعدية</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('MosquePrayers')"> أداء الصلاة في المسجد</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('FridayPrayer')"> صلاة الجمعة وسننها</label></div>
+        </div>
+
+        <!-- 2. الأذكار -->
+        <div class="section-title">📿 الأذكار اليومية</div>
+        <div class="task-group">
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('DhikrMorning')"> أذكار الصباح</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('DhikrEvening')"> أذكار المساء</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('DhikrSleep')"> أذكار النوم</label></div>
+        </div>
+
+        <!-- 3. القرآن الكريم -->
+        <div class="section-title">📖 القرآن الكريم</div>
+        <div class="task-group">
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('QuranRead')"> قراءة القرآن (الورد اليومي)</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('QuranMemorize')"> حفظ جديد من القرآن</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('QuranReview')"> مراجعة ما تم حفظه</label></div>
+        </div>
+
+        <!-- 4. السعرات الحرارية -->
+        <div class="section-title">🔥 السعرات الحرارية اليومية</div>
+        <div class="task-group">
+            <div class="select-item">
+                <label>اختر إجمالي السعرات اليومية:</label>
+                <select id="selectCalories" onchange="saveSelections()">
+                    <option value="">-- اختر السعرات --</option>
+                    <option value="1300">1300 سعرة</option>
+                    <option value="1400">1400 سعرة</option>
+                    <option value="1500">1500 سعرة</option>
+                    <option value="1600">1600 سعرة</option>
+                    <option value="1700">1700 سعرة</option>
+                    <option value="1800">1800 سعرة</option>
+                    <option value="1900">1900 سعرة</option>
+                    <option value="2000">2000 سعرة</option>
+                    <option value="2200">2200 سعرة</option>
+                    <option value="2500">2500 سعرة</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 5. الرياضة والمشي -->
+        <div class="section-title">🏃‍♂️ النشاط البدني والرياضة</div>
+        <div class="task-group">
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('HealthyFood')"> الالتزام بطعام صحي ومتزن</label></div>
+            <div class="task-item"><label><input type="checkbox" onchange="toggleTask('Water')"> شرب كمية كافية من الماء (2-3 لتر)</label></div>
+            
+            <div class="select-item">
+                <label>دقائق المشي اليومي:</label>
+                <select id="selectWalkMinutes" onchange="saveSelections()">
+                    <option value="">-- اختر الوقت --</option>
+                    <option value="10 دقائق">10 دقائق</option>
+                    <option value="15 دقيقة">15 دقيقة</option>
+                    <option value="20 دقيقة">20 دقيقة</option>
+                    <option value="30 دقيقة">30 دقيقة</option>
+                    <option value="45 دقيقة">45 دقيقة</option>
+                    <option value="60 دقيقة (ساعة)">60 دقيقة (ساعة)</option>
+                    <option value="أكثر من ساعة">أكثر من ساعة</option>
+                </select>
+            </div>
+
+            <div class="select-item">
+                <label>دقائق الجري على الجرّاية:</label>
+                <select id="selectTreadmillMinutes" onchange="saveSelections()">
+                    <option value="">-- اختر الوقت --</option>
+                    <option value="لم أجر اليوم">لم أجرِ اليوم</option>
+                    <option value="10 دقائق">10 دقائق</option>
+                    <option value="15 دقيقة">15 دقيقة</option>
+                    <option value="20 دقيقة">20 دقيقة</option>
+                    <option value="30 دقيقة">30 دقيقة</option>
+                    <option value="40 دقيقة">40 دقيقة</option>
+                    <option value="45 دقيقة">45 دقيقة</option>
+                    <option value="60 دقيقة">60 دقيقة</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        تطبيق "إنجازي اليومي" — يحفظ بياناتك تلقائياً
+    </footer>
+</div>
+
+<script>
+    let currentDay = 1;
+    const totalDays = 30;
+
+    function getStorageKey(day) {
+        return `enjazi_day_${day}`;
+    }
+
+    function loadDayData(day) {
+        const savedData = JSON.parse(localStorage.getItem(getStorageKey(day))) || {};
+
+        // تحميل خانات الاختيار (Checkboxes)
+        const checkboxes = document.querySelectorAll('#tasksContainer input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            const match = cb.getAttribute('onchange').match(/'([^']+)'/);
+            if (match) {
+                const taskId = match[1];
+                cb.checked = !!savedData[taskId];
+            }
+        });
+
+        // تحميل الخيارات المنسدلة (Selects)
+        document.getElementById('selectCalories').value = savedData.selectCalories || '';
+        document.getElementById('selectWalkMinutes').value = savedData.selectWalkMinutes || '';
+        document.getElementById('selectTreadmillMinutes').value = savedData.selectTreadmillMinutes || '';
+
+        document.getElementById('currentDayLabel').innerText = `اليوم ${day} من ${totalDays}`;
+        calculateProgress();
+    }
+
+    function changeDay(delta) {
+        const newDay = currentDay + delta;
+        if (newDay >= 1 && newDay <= totalDays) {
+            currentDay = newDay;
+            loadDayData(currentDay);
+        }
+    }
+
+    function toggleTask(taskId) {
+        const savedData = JSON.parse(localStorage.getItem(getStorageKey(currentDay))) || {};
+        const checkboxes = document.querySelectorAll('#tasksContainer input[type="checkbox"]');
+
+        checkboxes.forEach(cb => {
+            const match = cb.getAttribute('onchange').match(/'([^']+)'/);
+            if (match && match[1] === taskId) {
+                savedData[taskId] = cb.checked;
+            }
+        });
+
+        localStorage.setItem(getStorageKey(currentDay), JSON.stringify(savedData));
+        calculateProgress();
+    }
+
+    function saveSelections() {
+        const savedData = JSON.parse(localStorage.getItem(getStorageKey(currentDay))) || {};
+
+        savedData.selectCalories = document.getElementById('selectCalories').value;
+        savedData.selectWalkMinutes = document.getElementById('selectWalkMinutes').value;
+        savedData.selectTreadmillMinutes = document.getElementById('selectTreadmillMinutes').value;
+
+        localStorage.setItem(getStorageKey(currentDay), JSON.stringify(savedData));
+    }
+
+    function calculateProgress() {
+        const checkboxes = document.querySelectorAll('#tasksContainer input[type="checkbox"]');
+        let checkedCount = 0;
+
+        checkboxes.forEach(cb => {
+            if (cb.checked) checkedCount++;
+        });
+
+        const percent = checkboxes.length ? Math.round((checkedCount / checkboxes.length) * 100) : 0;
+        document.getElementById('progressFill').style.width = percent + '%';
+        document.getElementById('progressPercent').innerText = percent + '%';
+    }
+
+    // PWA Install Prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installApp');
+        installBtn.style.display = 'block';
+        installBtn.addEventListener('click', () => {
+            deferredPrompt.prompt();
+        });
+    });
+
+    // Initial Load
+    loadDayData(currentDay);
+</script>
+
+</body>
+</html>
